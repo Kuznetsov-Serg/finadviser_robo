@@ -66,4 +66,10 @@ class InvestorUserProfile(models.Model):
         instance.investoruserprofile.save()
 
 
+# прогноз
+# - наименование
+# - цена
+# - прогноз (0 +1 -1)
+# - % для суммы капитала
 
+# портфель

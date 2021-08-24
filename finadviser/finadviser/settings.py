@@ -46,6 +46,10 @@ INSTALLED_APPS = [
     'social_django',
 
     'authapp',
+    'adminapp',
+    'mainapp',
+    'portfolioapp',
+    'brokerapp'
 ]
 
 AUTH_USER_MODEL = 'authapp.InvestorUser'

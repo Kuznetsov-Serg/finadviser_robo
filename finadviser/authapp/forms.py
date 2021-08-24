@@ -21,7 +21,7 @@ class InvestorUserLoginForm(AuthenticationForm):
 class InvestorUserRegisterForm(UserCreationForm):
     class Meta:
         model = InvestorUser
-        fields = ('username', 'first_name', 'password1', 'password2', 'email', 'birthday', 'avatar')
+        fields = ('username', 'first_name', 'last_name', 'password1', 'password2', 'email', 'birthday', 'avatar')
 
     def __init__(self, *args, **kwargs):
         super(InvestorUserRegisterForm, self).__init__(*args, **kwargs)
@@ -43,11 +43,27 @@ class InvestorUserRegisterForm(UserCreationForm):
         return user
 
 
+class InvestorUserCreateForm(UserCreationForm):
+    class Meta:
+        model = InvestorUser
+        fields = ('username', 'first_name', 'last_name', 'password1', 'password2', 'email', 'birthday', 'avatar', 'is_staff')
+
+    def __init__(self, *args, **kwargs):
+        super(InvestorUserCreateForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+    def clean_age(self):
+        data = self.cleaned_data['age']
+        if data < 18:
+            raise forms.ValidationError("Вы слишком молоды!")
+        return data
+
 
 class InvestorUserEditForm(UserChangeForm):
     class Meta:
         model = InvestorUser
-        fields = ('username', 'first_name', 'email', 'birthday', 'avatar', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'birthday', 'avatar', 'password')
 
     def __init__(self, *args, **kwargs):
         super(InvestorUserEditForm, self).__init__(*args, **kwargs)

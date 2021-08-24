@@ -18,10 +18,17 @@ from django.urls import path, include
 
 from finadviser.views import index, contacts
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('auth/', include('authapp.urls', namespace='auth')),
+    path('admin_staff/', include('adminapp.urls', namespace='admin_staff'), name='admin_staff'),
     path('contacts/', contacts, name='contacts'),
     path('', include('social_django.urls', namespace='social')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
