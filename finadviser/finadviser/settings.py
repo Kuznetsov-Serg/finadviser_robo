@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'adminapp',
     'mainapp',
     'portfolioapp',
-    'brokerapp'
+    'brokerapp',
+    'modelapp',
 ]
 
 AUTH_USER_MODEL = 'authapp.InvestorUser'

@@ -65,11 +65,6 @@ class InvestorUserProfile(models.Model):
     def save_user_profile(sender, instance, **kwargs):
         instance.investoruserprofile.save()
 
-
-# прогноз
-# - наименование
-# - цена
-# - прогноз (0 +1 -1)
-# - % для суммы капитала
-
-# портфель
+    class Meta:
+        verbose_name = 'пользователь (доп.характеристики)'
+        verbose_name_plural = 'пользователи (доп.характеристики)'
