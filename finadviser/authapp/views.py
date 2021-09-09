@@ -134,3 +134,25 @@ def verify(request, email, activation_key):
     except Exception as err:
         print(f'error activation user : {err.args}')
         return HttpResponseRedirect(reverse('index'))
+
+
+
+def telegram_login(request, *args, **kwargs):
+    try:
+        data = request.GET
+        if data['username'] and data['id']:
+            username = f"{data['username']} (telegram_id:{data['id']})"
+            # user = ShopUser.objects.get(username=username)
+            # user = ShopUser.objects.all().filter(username=username)
+            user = get_object_or_404(ShopUser, username=username)
+    except Exception as err:
+        user = ShopUser(
+            username=username,
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            avatar=data['photo_url'],
+        )
+        user.save()
+
+    auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    return HttpResponseRedirect(reverse('index'))

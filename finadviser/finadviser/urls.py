@@ -28,6 +28,7 @@ urlpatterns = [
     path('admin_staff/', include('adminapp.urls', namespace='admin_staff'), name='admin_staff'),
     path('contacts/', contacts, name='contacts'),
     path('', include('social_django.urls', namespace='social')),
+    path('', include('modelapp.urls', namespace='model'), name='model'),
 ]
 
 if settings.DEBUG:

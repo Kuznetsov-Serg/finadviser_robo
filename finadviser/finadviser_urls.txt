@@ -1,0 +1,112 @@
+/	finadviser.views.index	index
+/admin/	django.contrib.admin.sites.index	admin:index
+/admin/<app_label>/	django.contrib.admin.sites.app_index	admin:app_list
+/admin/<url>	django.contrib.admin.sites.catch_all_view
+/admin/auth/group/	django.contrib.admin.options.changelist_view	admin:auth_group_changelist
+/admin/auth/group/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/auth/group/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:auth_group_change
+/admin/auth/group/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:auth_group_delete
+/admin/auth/group/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:auth_group_history
+/admin/auth/group/add/	django.contrib.admin.options.add_view	admin:auth_group_add
+/admin/authapp/investoruser/	django.contrib.admin.options.changelist_view	admin:authapp_investoruser_changelist
+/admin/authapp/investoruser/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/authapp/investoruser/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:authapp_investoruser_change
+/admin/authapp/investoruser/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:authapp_investoruser_delete
+/admin/authapp/investoruser/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:authapp_investoruser_history
+/admin/authapp/investoruser/add/	django.contrib.admin.options.add_view	admin:authapp_investoruser_add
+/admin/authapp/investoruserprofile/	django.contrib.admin.options.changelist_view	admin:authapp_investoruserprofile_changelist
+/admin/authapp/investoruserprofile/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/authapp/investoruserprofile/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:authapp_investoruserprofile_change
+/admin/authapp/investoruserprofile/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:authapp_investoruserprofile_delete
+/admin/authapp/investoruserprofile/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:authapp_investoruserprofile_history
+/admin/authapp/investoruserprofile/add/	django.contrib.admin.options.add_view	admin:authapp_investoruserprofile_add
+/admin/autocomplete/	django.contrib.admin.sites.autocomplete_view	admin:autocomplete
+/admin/brokerapp/broker/	django.contrib.admin.options.changelist_view	admin:brokerapp_broker_changelist
+/admin/brokerapp/broker/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/brokerapp/broker/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:brokerapp_broker_change
+/admin/brokerapp/broker/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:brokerapp_broker_delete
+/admin/brokerapp/broker/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:brokerapp_broker_history
+/admin/brokerapp/broker/add/	django.contrib.admin.options.add_view	admin:brokerapp_broker_add
+/admin/brokerapp/brokerproduct/	django.contrib.admin.options.changelist_view	admin:brokerapp_brokerproduct_changelist
+/admin/brokerapp/brokerproduct/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/brokerapp/brokerproduct/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:brokerapp_brokerproduct_change
+/admin/brokerapp/brokerproduct/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:brokerapp_brokerproduct_delete
+/admin/brokerapp/brokerproduct/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:brokerapp_brokerproduct_history
+/admin/brokerapp/brokerproduct/add/	django.contrib.admin.options.add_view	admin:brokerapp_brokerproduct_add
+/admin/jsi18n/	django.contrib.admin.sites.i18n_javascript	admin:jsi18n
+/admin/login/	django.contrib.admin.sites.login	admin:login
+/admin/logout/	django.contrib.admin.sites.logout	admin:logout
+/admin/mainapp/product/	django.contrib.admin.options.changelist_view	admin:mainapp_product_changelist
+/admin/mainapp/product/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/mainapp/product/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:mainapp_product_change
+/admin/mainapp/product/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:mainapp_product_delete
+/admin/mainapp/product/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:mainapp_product_history
+/admin/mainapp/product/add/	django.contrib.admin.options.add_view	admin:mainapp_product_add
+/admin/mainapp/productcategory/	django.contrib.admin.options.changelist_view	admin:mainapp_productcategory_changelist
+/admin/mainapp/productcategory/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/mainapp/productcategory/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:mainapp_productcategory_change
+/admin/mainapp/productcategory/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:mainapp_productcategory_delete
+/admin/mainapp/productcategory/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:mainapp_productcategory_history
+/admin/mainapp/productcategory/add/	django.contrib.admin.options.add_view	admin:mainapp_productcategory_add
+/admin/modelapp/model/	django.contrib.admin.options.changelist_view	admin:modelapp_model_changelist
+/admin/modelapp/model/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/modelapp/model/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:modelapp_model_change
+/admin/modelapp/model/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:modelapp_model_delete
+/admin/modelapp/model/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:modelapp_model_history
+/admin/modelapp/model/add/	django.contrib.admin.options.add_view	admin:modelapp_model_add
+/admin/modelapp/prediction/	django.contrib.admin.options.changelist_view	admin:modelapp_prediction_changelist
+/admin/modelapp/prediction/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/modelapp/prediction/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:modelapp_prediction_change
+/admin/modelapp/prediction/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:modelapp_prediction_delete
+/admin/modelapp/prediction/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:modelapp_prediction_history
+/admin/modelapp/prediction/add/	django.contrib.admin.options.add_view	admin:modelapp_prediction_add
+/admin/modelapp/signal/	django.contrib.admin.options.changelist_view	admin:modelapp_signal_changelist
+/admin/modelapp/signal/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/modelapp/signal/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:modelapp_signal_change
+/admin/modelapp/signal/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:modelapp_signal_delete
+/admin/modelapp/signal/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:modelapp_signal_history
+/admin/modelapp/signal/add/	django.contrib.admin.options.add_view	admin:modelapp_signal_add
+/admin/password_change/	django.contrib.admin.sites.password_change	admin:password_change
+/admin/password_change/done/	django.contrib.admin.sites.password_change_done	admin:password_change_done
+/admin/portfolioapp/portfolio/	django.contrib.admin.options.changelist_view	admin:portfolioapp_portfolio_changelist
+/admin/portfolioapp/portfolio/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/portfolioapp/portfolio/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:portfolioapp_portfolio_change
+/admin/portfolioapp/portfolio/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:portfolioapp_portfolio_delete
+/admin/portfolioapp/portfolio/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:portfolioapp_portfolio_history
+/admin/portfolioapp/portfolio/add/	django.contrib.admin.options.add_view	admin:portfolioapp_portfolio_add
+/admin/r/<int:content_type_id>/<path:object_id>/	django.contrib.contenttypes.views.shortcut	admin:view_on_site
+/admin/social_django/association/	django.contrib.admin.options.changelist_view	admin:social_django_association_changelist
+/admin/social_django/association/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/social_django/association/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:social_django_association_change
+/admin/social_django/association/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:social_django_association_delete
+/admin/social_django/association/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:social_django_association_history
+/admin/social_django/association/add/	django.contrib.admin.options.add_view	admin:social_django_association_add
+/admin/social_django/nonce/	django.contrib.admin.options.changelist_view	admin:social_django_nonce_changelist
+/admin/social_django/nonce/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/social_django/nonce/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:social_django_nonce_change
+/admin/social_django/nonce/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:social_django_nonce_delete
+/admin/social_django/nonce/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:social_django_nonce_history
+/admin/social_django/nonce/add/	django.contrib.admin.options.add_view	admin:social_django_nonce_add
+/admin/social_django/usersocialauth/	django.contrib.admin.options.changelist_view	admin:social_django_usersocialauth_changelist
+/admin/social_django/usersocialauth/<path:object_id>/	django.views.generic.base.RedirectView
+/admin/social_django/usersocialauth/<path:object_id>/change/	django.contrib.admin.options.change_view	admin:social_django_usersocialauth_change
+/admin/social_django/usersocialauth/<path:object_id>/delete/	django.contrib.admin.options.delete_view	admin:social_django_usersocialauth_delete
+/admin/social_django/usersocialauth/<path:object_id>/history/	django.contrib.admin.options.history_view	admin:social_django_usersocialauth_history
+/admin/social_django/usersocialauth/add/	django.contrib.admin.options.add_view	admin:social_django_usersocialauth_add
+/admin_staff/users/create/	adminapp.views.UserCreateView	admin_staff:user_create
+/admin_staff/users/delete/<int:pk>/	adminapp.views.UserDeleteView	admin_staff:user_delete
+/admin_staff/users/read/	adminapp.views.UserListView	admin_staff:users
+/admin_staff/users/update/<int:pk>/	adminapp.views.UserUpdateView	admin_staff:user_update
+/admin_staff/users/update/password/	adminapp.views.UserUpdatePassword	admin_staff:user_update_password
+/admin_staff/users/update/password/<int:pk>/	adminapp.views.UserUpdatePassword	admin_staff:user_update_password
+/auth/edit/	authapp.views.edit	auth:edit
+/auth/login/	authapp.views.login	auth:login
+/auth/logout/	authapp.views.logout	auth:logout
+/auth/register/	authapp.views.register	auth:register
+/auth/verify/<str:email>/<str:activation_key>/	authapp.views.verify	auth:verify
+/complete/<str:backend>/	social_django.views.complete	social:complete
+/contacts/	finadviser.views.contacts	contacts
+/disconnect/<str:backend>/	social_django.views.disconnect	social:disconnect
+/disconnect/<str:backend>/<int:association_id>/	social_django.views.disconnect	social:disconnect_individual
+/login/<str:backend>/	social_django.views.auth	social:begin
+/media/<path>	django.views.static.serve

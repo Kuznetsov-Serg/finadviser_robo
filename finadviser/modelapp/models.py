@@ -22,6 +22,14 @@ class Model(models.Model):
         verbose_name='описание',
         blank=True,
     )
+    pub_key = models.CharField(
+        max_length=128,
+        blank=True,
+    )
+    secret_key = models.CharField(
+        max_length=128,
+        blank=True,
+    )
     is_active = models.BooleanField(
         verbose_name='активна',
         default=True,
