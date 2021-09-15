@@ -74,6 +74,9 @@ class Prediction(models.Model):
         Signal,
         on_delete=models.CASCADE,
     )
+    created = models.DateTimeField(
+        auto_now_add=True,
+    )
     # class PredictionSignal(models.TextChoices):
     #     BUY = '1', _('покупка')
     #     SELL = '-1', _('продажа')
