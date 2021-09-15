@@ -225,3 +225,6 @@ SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = [                 # add this
     ('picture', 'picture'),
     ('about', 'birthday'),
 ]
+
+# Telegram
+SOCIAL_AUTH_TELEGRAM_BOT_TOKEN = env('SOCIAL_AUTH_TELEGRAM_BOT_TOKEN')

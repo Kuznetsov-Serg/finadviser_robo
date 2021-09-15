@@ -17,6 +17,6 @@ class SignalAdmin(admin.ModelAdmin):
 
 @admin.register(Prediction)
 class PredictionAdmin(admin.ModelAdmin):
-    list_display = ('model', 'product', 'date', 'signal', 'percent')
+    list_display = ('date', 'model', 'product', 'signal', 'percent', 'created',)
     list_filter = ('model', 'product',)
     ordering = ('-date', 'model', 'product',)
