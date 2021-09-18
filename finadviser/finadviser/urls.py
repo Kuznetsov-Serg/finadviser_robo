@@ -29,6 +29,7 @@ urlpatterns = [
     path('contacts/', contacts, name='contacts'),
     path('', include('social_django.urls', namespace='social')),
     path('', include('modelapp.urls', namespace='model'), name='model'),
+    # path('', include('tgbot.urls')),
 ]
 
 if settings.DEBUG:

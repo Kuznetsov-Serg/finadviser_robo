@@ -10,27 +10,35 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
+import dj_database_url       # от Телеграм-бота
+import dotenv
 from pathlib import Path
 
-# Для работы с переменными среды окружения, в частности - регистрации через соцсети методои .env
-import environ
-env = environ.Env()
-environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Для работы с переменными среды окружения, в частности - регистрации через соцсети методои .env
+# import environ
+# env = environ.Env()
+# environ.Env.read_env()
+# Load env variables from file
+dotenv_file = BASE_DIR / "finadviser/.env"
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w4wtdl2c)js#x5360p$1%-5tkbikenh847j$p*ar*_ux0^btnb'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not not os.getenv("DJANGO_DEBUG", False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*',]   # since Telegram uses a lot of IPs for webhooks
 
 
 # Application definition
@@ -46,12 +54,18 @@ INSTALLED_APPS = [
     'social_django',
     'django_extensions',
 
+    # 3rd party apps
+    'django_celery_beat',        # от Телеграм-бота
+
+    # local apps
     'authapp',
     'adminapp',
     'mainapp',
     'portfolioapp',
     'brokerapp',
     'modelapp',
+    'tgbot.apps.TgbotConfig',        # от Телеграм-бота
+
 ]
 
 AUTH_USER_MODEL = 'authapp.InvestorUser'
@@ -65,6 +79,8 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.odnoklassniki.OdnoklassnikiOAuth2',
 ]
 
+# -----> LOGGING
+ENABLE_DECORATOR_LOGGING = True     # Telegram-bot
 LOGIN_ERROR_URL = '/'
 
 SOCIAL_AUTH_PIPELINE = (
@@ -87,7 +103,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'whitenoise.middleware.WhiteNoiseMiddleware',        # от Телеграм-бота
+    'corsheaders.middleware.CorsMiddleware',             # от Телеграм-бота
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True         # от Телеграм-бота
+CORS_ALLOW_CREDENTIALS = True        # от Телеграм-бота
 
 ROOT_URLCONF = 'finadviser.urls'
 
@@ -110,7 +132,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'finadviser.wsgi.application'
-
+ASGI_APPLICATION = 'finadviser.asgi.application'         # от Телеграм-бота
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -122,17 +144,18 @@ WSGI_APPLICATION = 'finadviser.wsgi.application'
 #     }
 # }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'finadviser',
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-        'PORT': '3306',
+    'default': dj_database_url.config(conn_max_age=600),    # от Телеграм-бота
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'finadviser',
+    #     'USER': env('DB_USER'),
+    #     'PASSWORD': env('DB_PASSWORD'),
+    #     'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+    #     'PORT': '3306',
         # 'OPTIONS': {
         #     'read_default_file': '/etc/mysql/my.cnf',
         # }
-    }
+    # }
 }
 
 # Password validation
@@ -175,6 +198,10 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'finadviser', 'static'),
@@ -188,6 +215,18 @@ STATICFILES_FINDERS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# -----> CELERY (Telegram-бот)
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379')
+BROKER_URL = REDIS_URL
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -196,8 +235,8 @@ LOGIN_URL = '/auth/login/'
 
 # Для отправки почты в Django (Активация пользователя по e-mail)
 EMAIL_HOST = 'smtp.mailtrap.io'
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = '2525'
 
 EMAIL_USE_SSL = False
@@ -208,15 +247,15 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 
 # Вариант с файлом окружения .env
 # vk.com
-SOCIAL_AUTH_VK_OAUTH2_KEY = env('SOCIAL_AUTH_VK_OAUTH2_KEY')
-SOCIAL_AUTH_VK_OAUTH2_SECRET = env('SOCIAL_AUTH_VK_OAUTH2_SECRET')
+SOCIAL_AUTH_VK_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_VK_OAUTH2_KEY')
+SOCIAL_AUTH_VK_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_VK_OAUTH2_SECRET')
 SOCIAL_AUTH_VK_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
 
 # https://ok.ru
-SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_KEY = env('SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_KEY')
-SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_SECRET = env('SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_SECRET')
-SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_PUBLIC_NAME = env('SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_PUBLIC_NAME')
+SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_KEY')
+SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_SECRET')
+SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_PUBLIC_NAME = os.getenv('SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_PUBLIC_NAME')
 SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 SOCIAL_AUTH_ODNOKLASSNIKI_OAUTH2_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = [                 # add this
@@ -226,5 +265,26 @@ SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = [                 # add this
     ('about', 'birthday'),
 ]
 
-# Telegram
-SOCIAL_AUTH_TELEGRAM_BOT_TOKEN = env('SOCIAL_AUTH_TELEGRAM_BOT_TOKEN')
+# -----> TELEGRAM
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+SOCIAL_AUTH_TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_TOKEN')
+
+# -----> SENTRY
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
+# from sentry_sdk.integrations.celery import CeleryIntegration
+# from sentry_sdk.integrations.redis import RedisIntegration
+
+# sentry_sdk.init(
+#     dsn="INPUT ...ingest.sentry.io/ LINK",
+#     integrations=[
+#         DjangoIntegration(),
+#         CeleryIntegration(),
+#         RedisIntegration(),
+#     ],
+#     traces_sample_rate=0.1,
+
+#     # If you wish to associate users to errors (assuming you are using
+#     # django.contrib.auth) you may enable sending PII data.
+#     send_default_pii=True
+# )
