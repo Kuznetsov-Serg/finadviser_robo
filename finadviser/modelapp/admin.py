@@ -11,7 +11,7 @@ class ModelAdmin(admin.ModelAdmin):
 
 @admin.register(Signal)
 class SignalAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_active',)
+    list_display = ('name', 'description', 'is_active',)
     list_filter = ('is_active',)
     ordering = ('-is_active', 'name',)
 
