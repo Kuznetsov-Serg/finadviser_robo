@@ -26,6 +26,10 @@ class ProductCategory(models.Model):
     def __str__(self):
         return self.name
 
+    def invited_users(self, user):  # --> User queryset
+        return User.objects.filter(deep_link=str(self.user_id), created_at__gt=self.created_at)
+
+
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
@@ -56,6 +60,10 @@ class Product(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.category.name})'
+
+    def get_user_products(self, user):  # --> queryset
+        return Product.objects.filter(is_active=True, user=user)
+
 
     class Meta:
         verbose_name = 'фин.продукт'

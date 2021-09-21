@@ -48,6 +48,11 @@ class Signal(models.Model):
         verbose_name='наименование',
         max_length=64,
     )
+    description = models.CharField(
+        max_length=256,
+        blank=True,
+        verbose_name='краткое описание',
+    )
     is_active = models.BooleanField(
         verbose_name='активный',
         default=True,
@@ -77,18 +82,6 @@ class Prediction(models.Model):
     created = models.DateTimeField(
         auto_now_add=True,
     )
-    # class PredictionSignal(models.TextChoices):
-    #     BUY = '1', _('покупка')
-    #     SELL = '-1', _('продажа')
-    #     HOLD = '0', _('удержание')
-    #     CLOSE = '9', _('разворот ценового движения')
-
-    # signal = models.CharField(
-    #     verbose_name='сигнал',
-    #     max_length=2,
-    #     choices=PredictionSignal.choices,
-    #     default=PredictionSignal.HOLD,
-    # )
     date = models.DateTimeField(
         verbose_name='дата',
     )
@@ -106,6 +99,10 @@ class Prediction(models.Model):
         max_digits=5,
         decimal_places=2,
         default=0,
+    )
+    optional_information = models.TextField(
+        verbose_name='дополнительная информация',
+        blank=True,
     )
 
     def __str__(self):

@@ -1,14 +1,15 @@
 from django.db import models
 from django.conf import settings
-from mainapp.models import Product
+from mainapp.models import ProductCategory, Product
 
 # Create your models here.
+from tgbot.models import User
+
 
 class Portfolio(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        User,
         on_delete=models.CASCADE,
-        related_name='basket',
     )
     product = models.ForeignKey(
         Product,
@@ -24,7 +25,7 @@ class Portfolio(models.Model):
     )
 
     def __str__(self):
-        return f'{self.user.get_full_name()} ({self.product.name})'
+        return f'{self.user} ({self.product.name})'
 
     class Meta:
         verbose_name = 'портфель'

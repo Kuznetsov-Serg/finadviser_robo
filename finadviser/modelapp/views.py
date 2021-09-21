@@ -9,6 +9,9 @@ from .models import Model, Prediction, Signal
 from mainapp.models import Product
 
 import pandas as pd
+from tgbot.tasks import broadcast_message
+
+from tgbot.models import User
 
 
 def prediction_put(request, sign):
@@ -26,28 +29,40 @@ def prediction_put(request, sign):
             print('Ошибка в контрольной сумме')
             return
 
-        prediction = Prediction(
-            model=model,
-            product=get_object_or_404(Product, name=api_dict['product_name']),
-            signal=get_object_or_404(Signal, name=api_dict['signal_name']),
-            date=pd.to_datetime(api_dict['date']),
-            date_expires=pd.to_datetime(api_dict['date_expires']),
-            price=api_dict['price'],
-            percent=api_dict['percent'],
-        )
+        prediction = Prediction()
+        prediction.model = model
+        prediction.optional_information = ''
+        for key, value in api_dict.items():
+            if key == 'product_name':
+                prediction.product = get_object_or_404(Product, name=value)
+            elif key == 'signal_name':
+                prediction.signal = get_object_or_404(Signal, name=value)
+            elif key == 'date':
+                prediction.date = pd.to_datetime(value)
+            elif key == 'date_expires':
+                prediction.date_expires = pd.to_datetime(value)
+            elif key == 'price':
+                prediction.price = value
+            elif key == 'percent':
+                prediction.percent = value
+            elif key != 'pub_key1':              # сохраним все остальные переданные поля со значениями
+                prediction.optional_information += f'{key} = {value}\n'
 
         # Проверка на дублирование записи в предсказаниях (модель, дата, фин.продукт)
-        old_prediction = Prediction.objects.filter(model=prediction.model, product=prediction.product, date=prediction.date)
+        old_prediction = Prediction.objects.filter(model=prediction.model, product=prediction.product,
+                                                   date=prediction.date)
         if len(old_prediction):
-            print('Попытка дублирования предсказания: \n', api_dict)
+            print(f'Попытка дублирования предсказания: \n{api_dict}')
             # error_prediction_put(request)
             return
 
         prediction.save()
+        send_broadcast_message(prediction)          # широковещательно отправим предсказание всем пользователям
         return HttpResponseRedirect(reverse('index'))
     except Exception as err:
         print(f'error put prediction : {err.args}')
         return HttpResponseRedirect(reverse('index'))
+
 
 def error_prediction_put(request):
     title = 'Ошибка загрузки предсказания'
@@ -55,3 +70,14 @@ def error_prediction_put(request):
         'title': title,
     }
     return render(request, 'modelapp/error.html', context)
+
+# широковещательно отправим предсказание всем пользователям
+def send_broadcast_message(prediction):
+    text = f'От модели  <b>{prediction.model}</b> получено предсказание:\nДата: {prediction.date}\n' \
+           f'Продукт: <b>{prediction.product}</b>\nСигнал: <b>{prediction.signal}</b>\n<i>({prediction.signal.description})</i>\n' \
+           f'Цена: <u>{prediction.price}</u>\n' \
+           f'Процент: {prediction.percent}\nСрок жизни: {prediction.date_expires}'
+
+    user_ids = list(User.objects.filter(is_blocked_bot=0, is_banned=0).values_list('user_id', flat=True))
+    # user_ids = ['178698488']
+    broadcast_message(user_ids=user_ids, message=text, parse_mode='HTML')
