@@ -57,6 +57,10 @@ INSTALLED_APPS = [
     # 3rd party apps
     'django_celery_beat',        # от Телеграм-бота
 
+    # Google DialogFlow
+    # 'chat.apps.ChatConfig',
+    # 'polls.apps.PollsConfig',
+
     # local apps
     'authapp',
     'adminapp',
@@ -199,10 +203,10 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 MEDIA_URL = '/media/'
-STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'static'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'finadviser', 'static'),
 )
@@ -268,6 +272,18 @@ SOCIAL_AUTH_FACEBOOK_EXTRA_DATA = [                 # add this
 # -----> TELEGRAM
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 SOCIAL_AUTH_TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_TOKEN')
+
+# Google Dialog-Flow
+GOOGLE_PROJECT_ID = os.getenv('GOOGLE_PROJECT_ID')
+GOOGLE_AUTHENTICATION_FILE_NAME = os.getenv('GOOGLE_AUTHENTICATION_FILE_NAME')
+# GOOGLE_APPLICATION_CREDENTIALS = os.path.join(BASE_DIR, GOOGLE_AUTHENTICATION_FILE_NAME)
+
+CORS_ORIGIN_WHITELIST = (
+    'google.com',
+    'hostname.example.com',
+    'localhost:8000',
+    '127.0.0.1:9000'
+)
 
 # -----> SENTRY
 # import sentry_sdk
