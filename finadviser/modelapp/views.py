@@ -7,11 +7,11 @@ from django.urls import reverse
 
 from .models import Model, Prediction, Signal
 from mainapp.models import Product
+from portfolioapp.models import Portfolio
+from tgbot.models import User
 
 import pandas as pd
 from tgbot.tasks import broadcast_message
-
-from tgbot.models import User
 
 
 def prediction_put(request, sign):
@@ -78,6 +78,15 @@ def send_broadcast_message(prediction):
            f'Цена: <u>{prediction.price}</u>\n' \
            f'Процент: {prediction.percent}\nСрок жизни: {prediction.date_expires}'
 
-    user_ids = list(User.objects.filter(is_blocked_bot=0, is_banned=0).values_list('user_id', flat=True))
+    user_ids = get_users_by_product(prediction.product)
+    # user_ids = list(User.objects.filter(is_blocked_bot=0, is_banned=0).values_list('user_id', flat=True))
     # user_ids = ['178698488']
     broadcast_message(user_ids=user_ids, message=text, parse_mode='HTML')
+
+# Перечень ИД Клиентов, имеющих продукт в Портфолио
+def get_users_by_product(product):
+    return set(map(lambda x: x.user_id, Portfolio.objects.filter(is_active=True,
+                                                                 product=product,
+                                                                 user__is_blocked_bot=0,
+                                                                 user__is_banned=0
+                                                                 )))

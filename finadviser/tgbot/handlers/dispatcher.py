@@ -2,8 +2,13 @@
     Telegram event handlers
 """
 import collections
+import json
+# import os
+# import types
 
 import telegram
+from apiai import apiai
+# from django.http import HttpResponse
 from telegram import ReplyMarkup, ReplyKeyboardMarkup
 from telegram.ext import (
     Updater, Dispatcher, Filters,
@@ -11,6 +16,8 @@ from telegram.ext import (
     InlineQueryHandler, CallbackQueryHandler,
     ChosenInlineResultHandler,
 )
+# import dialogflow
+# import dialogflow_v2 as dialogflow
 
 from celery.decorators import task  # event processing in async mode
 
@@ -21,8 +28,8 @@ from tgbot.handlers.commands import broadcast_command_with_message
 from tgbot.handlers.handlers import secret_level, broadcast_decision_handler
 from tgbot.handlers.manage_data import SECRET_LEVEL_BUTTON, CONFIRM_DECLINE_BROADCAST
 from tgbot.handlers.static_text import broadcast_command
-from tgbot.handlers.dialog_flow import dialog_flow, dialog_flow_portfolio
-from tgbot.handlers.dialog_flow import Message, Markdown, HTML
+from tgbot.handlers.dialog_flow import dialog_flow
+from tgbot.handlers.dialog_flow import Message
 
 
 
@@ -68,6 +75,11 @@ def setup_dispatcher(dp):
 
 def run_pooling():
     """ Run bot in pooling mode """
+
+    bot = DialogBot(TELEGRAM_TOKEN, None)
+    bot.start()
+    return
+
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
 
     dp = updater.dispatcher
@@ -133,14 +145,16 @@ class DialogBot(object):
         self.updater.dispatcher.add_handler(handler)  # ставим обработчик всех текстовых сообщений
         self.handlers = collections.defaultdict(self.generator)  # заводим мапу "id чата -> генератор"
 
+
     def start(self):
         """ Run bot in pooling mode """
         self.bot_info = telegram.Bot(TELEGRAM_TOKEN).get_me()
         bot_link = f"https://t.me/" + self.bot_info["username"]
         print(f"Pooling of '{bot_link}' started")
 
-        self.updater.start_polling()
-        self.updater.idle()
+        self.updater.start_polling()    # Начинаем поиск обновлений
+        self.updater.idle()             # Останавливаем бота, если были нажаты Ctrl + C
+
 
     def handle_message(self, bot, update):
         print("Received", bot.message.text)
@@ -149,42 +163,21 @@ class DialogBot(object):
             # если передана команда /start, начинаем всё с начала -- для
             # этого удаляем состояние текущего чатика, если оно есть
             self.handlers.pop(chat_id, None)
-        # if bot.message.text == "/fin_product":      # запускаем генератор Портфолио Клиента
-        if bot.message.text == "/new":
-            # этого удаляем состояние текущего чатика, если оно есть
-            self.handlers.pop(chat_id, None)
-            # запускаем dialog_Flow добавления нового фин.инструмента в портфолио Клиента
-            self.handlers[chat_id] = dialog_flow_portfolio(chat_id)    # Только чтобы передать параметр в генератор
-            answer = next(self.handlers[chat_id])
-        elif chat_id in self.handlers:
-            # если диалог уже начат, то надо использовать .send(), чтобы
-            # передать в генератор ответ пользователя
-            try:
-                answer = self.handlers[chat_id].send(bot.message)
-            except StopIteration:
-                # если при этом генератор закончился -- что делать, начинаем общение с начала
-                del self.handlers[chat_id]
-                # (повторно вызванный, этот метод будет думать, что пользователь с нами впервые)
-                return self.handle_message(bot, update)
-        else:
-            # диалог только начинается. defaultdict запустит новый генератор для этого
-            # чатика, а мы должны будем извлечь первое сообщение с помощью .next()
-            # (.send() срабатывает только после первого yield)
-            self.handlers[chat_id] = self.generator(bot.message.chat.first_name)    # Только чтобы передать параметр в генератор
-            answer = next(self.handlers[chat_id])
+
+        if chat_id not in self.handlers:    # начало общения
+            self.handlers[chat_id] = 'default_dialog_flow'      # значит, запустим Google DialogFlow
+
+        # в получаемом кортеже может смениться активный DialogFlow (команды)
+        answer, self.handlers[chat_id] = dialog_flow(function_or_generator=self.handlers[chat_id], chat_id=chat_id,
+                                                     username=bot.message.chat.first_name, text=bot.message.text)
         # отправляем полученный ответ пользователю
         self._send_answer(bot, chat_id, answer)
-
-    def _send_answer(self, bot, chat_id, answer):
-        print("Answer: %r" % answer)
-        if isinstance(answer, str):     # если просто строка, обернем ее в класс Message (бывет HTML и Markdown)
-            answer = Message(answer)
-        # bot.sendMessage(chat_id=chat_id, text=answer.text, **answer.options)
-        bot.message.reply_text(text=answer.text, **answer.options)
 
 
     def _send_answer(self, bot, chat_id, answer):
         print("Sending answer %r to %s" % (answer, chat_id))
+        if answer == '':                    # Google не всегда отвечает
+            return
         if isinstance(answer, collections.abc.Iterable) and not isinstance(answer, str):
             # мы получили несколько объектов -- сперва каждый надо обработать
             answer = list(map(self._convert_answer_part, answer))
@@ -232,12 +225,26 @@ class DialogBot(object):
         return answer_part
 
 
+def textMessage(bot, update):
+    request = apiai.ApiAI('ВАШ API ТОКЕН').text_request() # Токен API к Dialogflow
+    request.lang = 'ru' # На каком языке будет послан запрос
+    request.session_id = 'BatlabAIBot' # ID Сессии диалога (нужно, чтобы потом учить бота)
+    request.query = update.message.text # Посылаем запрос к ИИ с сообщением от юзера
+    responseJson = json.loads(request.getresponse().read().decode('utf-8'))
+    response = responseJson['result']['fulfillment']['speech'] # Разбираем JSON и вытаскиваем ответ
+    # Если есть ответ от бота - присылаем юзеру, если нет - бот его не понял
+    if response:
+        bot.send_message(chat_id=update.message.chat_id, text=response)
+    else:
+        bot.send_message(chat_id=update.message.chat_id, text='Я Вас не совсем понял!')
+
+
 # Старый вариант без Dialog_Flow
 # Global variable - best way I found to init Telegram bot
 # bot = telegram.Bot(TELEGRAM_TOKEN)
 # dispatcher = setup_dispatcher(Dispatcher(bot, None, workers=0, use_context=True))
 # TELEGRAM_BOT_USERNAME = bot.get_me()["username"]
 
-bot = DialogBot(TELEGRAM_TOKEN, dialog_flow)
+bot = DialogBot(TELEGRAM_TOKEN, None)
 bot.start()
-
+dispatcher = setup_dispatcher(Dispatcher(bot, None, workers=0, use_context=True))

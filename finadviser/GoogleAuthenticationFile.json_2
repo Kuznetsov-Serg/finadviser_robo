@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "finadviser-gwiu",
+  "private_key_id": "fc8fd0754ec735e0782e2704769cef186caeede9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDiwkfNcTKMltT6\nZStdUTk+k8/iMlpcXA8cihJSry9lkPI69GGHJH1hGN3zX7ffxO8OiNOzymESGR11\nGziRHKwmrvlUDBtx2OFokuEJ2QBzSGtKbGlsdd9a7BFzx3ljYpSLk/wHELsDy1Z5\ngC7/qf8wT4oT35elEUg9eLjg5MqwSg133zVS/NH5o+c7OGcXFxG+g9ywCDxbNgTj\nBCVet8Swxwx7BTEy2guZ2x+D5xZQCK8Ajje93b9Uj2x7SWrQO4MdXq23+hckOfoc\nILshXuIzGOWR/mNY+7SmhAUKY4LJWpVumiRu0ks2A+pwq+V0hGOr+1OICbzVLvkJ\nrE7T7hUlAgMBAAECggEAJXbTTaBO6XbvG6qU4k9N3aamsTjAAKPuFDlEozgR5N4w\ngyiGp4ESHPVykCfnlXcwRu64yWrdpFOVcBht/V2nHKIKjAYPD711KmWf/BRH9IQJ\nw+tK9LI504gOrxoNFmw+Xhw2RsWPHGafNCZHPZLM2GK/zZ5Cq/FBxfQ42WE7kqnt\nwAk1aWCZnLrCSOdourS3vulOdDwS6h7xXQQU3JimB7j/vqq8Yrsdfx26I2Z6Hbwp\nr9vYuXbgwAz332BzLZlW5mYO9qLbYxN7wCPC4/TCf/J79vYkXEoz/JeqwzAyMWLf\nnT4oG/qqr11LjDI9ycmBTG6ZnuCrBZH6i5QdsFLKIQKBgQD855jMZZ4qSvCYV+dg\ngZg1S/bPDt8putr/PLPDKcOkyouW6yDYkNe+EqY5MdTMJClOOR4BAB8cuemHrbVW\nkEuZSkzIj9JMMBlJ44TSTDFbwsDlR0zQk7i2OkaCC3fdbooSvboFGQp7n2GU3Jxm\n2Amr97MWLuoA+Lr22o57eEenxQKBgQDliMNyZm1kBrbgvk+J+hp99JF6R541T9lI\nH3ArJmgz3m3tBqgq8ZFIvas2/8kLINqxUv119gS1M3KAb7tfVSyNOiX0Gz6mKS38\nV7YHQY23sazvQ6O9kN+RlNZm/PuVhhppl1cxGv9ivEq6Nv02iPeM5OyOkvQmgkXj\n5WTaw/4t4QKBgQCemm+M372NMGoqYBZOw3c9FWK2/9CcTv7ASsVBg5OaaRuZjeOP\nbWafYPq1q7aUP6lX0SIr5nOchEscN6gdnWiLvbjhnrB370IswG6vo/DgZwapw0k9\nFSclwO4u6BpH1+bnUeyy/b1BQfbkcGX1aU7HdhPtuYYvDc3SucXZUNk/MQKBgFyS\nJrj5pD6GErVbK3rrGkoYG5/kSGMZ2/ihbTyJ1data0n/uEzxdfWPQQECcdOCIZEI\ndl5fpRBrOk+gQEI3eKtQe0QSxNaAnyI5QZl1j7E5ABTTA7ONPQ1aqImKl/B60CYr\nuid8yujIJZ8qVD7tSGFTZjAuBjeNrKA3wNAV4WohAoGBAO3VmVm1RFhNWlGOjem1\n9dCFkG9UBKl5+Azc/Z2qNHGiiZk9DAGfgr8thXGREw4rW1GiI+f4Lct4bSAX2Cvz\nE+ypk13/BBD2DCTUo1rOYXCVu3opQWh7XNDi1eXqahD748MfpO4rCJQ8NDMso1Nr\nX8V34CFY33NPDWJvko1EPf1U\n-----END PRIVATE KEY-----\n",
+  "client_email": "finadviser-sheduler@finadviser-gwiu.iam.gserviceaccount.com",
+  "client_id": "116473696068301638643",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/finadviser-sheduler%40finadviser-gwiu.iam.gserviceaccount.com"
+}

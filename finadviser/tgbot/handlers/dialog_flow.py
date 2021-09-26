@@ -1,21 +1,70 @@
-# Генератор Dialog_Flow
-
+# Dialog_Flow (собственные Генераторы и Google)
+import os
 from collections import Iterable
-from functools import reduce
+# from functools import reduce
 
+import dialogflow
 from cronlog import basestring
 from django.shortcuts import get_object_or_404
+import types
 
 from tgbot.models import User
 from mainapp.models import ProductCategory, Product
 from portfolioapp.models import Portfolio
+
+from finadviser.settings import BASE_DIR, GOOGLE_AUTHENTICATION_FILE_NAME, GOOGLE_PROJECT_ID
 
 '''
 *********************************************************************
 Основной блок Dialog-Flow
 *********************************************************************
 '''
-def dialog_flow(username=None):
+def dialog_flow(function_or_generator=None, chat_id=None, username='', text=''):
+    if is_command_dialog_flow(text):        # Ответ является командой
+        # выберем и запустим локальный генератор
+        function_or_generator = get_dialog_flow(text=text, chat_id=chat_id, username=username)
+        answer = next(function_or_generator)    # в первый раз - next (.send() срабатывает только после первого yield)
+    else:
+        if isinstance(function_or_generator, types.GeneratorType):      # если функция - Генератор
+            try:
+                answer = function_or_generator.send(HTML(text))         # запрос в локальный DialogFlow
+            except StopIteration:                           # если генератор закончился, продолжаем общение с Google
+                function_or_generator = 'default_dialog_flow'
+                answer = ask_google_dialog_flow(text, chat_id)          # запрос в Google DialogFlow
+        else:
+            answer = ask_google_dialog_flow(text, chat_id)              # запрос в Google DialogFlow
+    return (answer, function_or_generator)
+
+
+'''
+*********************************************************************
+ Блок определения скрипта DialogFlow по спец-командам
+*********************************************************************
+'''
+def is_command_dialog_flow(text):
+    return get_dialog_flow(text=text, is_boolean=True)
+
+def get_dialog_flow(text, chat_id=None, username=None, is_boolean=False):
+    command_dict = {
+        'dialog_flow_portfolio': ['/portfolio', 'портфолио', 'продукты', 'портфель'],
+        'dialog_flow_ROBO': ['привет', 'start', '/start'],
+    }
+    for key, value in command_dict.items():
+        if text.lower() in value:
+            if is_boolean:
+                return True
+            if key == 'dialog_flow_portfolio':          # Портфолио
+                return dialog_flow_portfolio(chat_id)
+            elif key == 'dialog_flow_ROBO':             # Вступительный диалог про брокерский Счет
+                return dialog_flow_ROBO(username)
+    return False
+
+'''
+*********************************************************************
+ DialogFlow вступительный, для выяснения, есть-ли брокерский счет
+*********************************************************************
+'''
+def dialog_flow_ROBO(username=None):
     answer = yield (HTML(f"Привет <b>{username}</b>, я - Робо :)\n" \
                          "Твой помощник в сфере финансов, а также твоя моральная поддержка 24/7\n" \
                          f"Будем знакомы.\nКак лучше к тебе обращаться?\n"), [username])
@@ -23,7 +72,8 @@ def dialog_flow(username=None):
     # убираем ведущие знаки пунктуации, оставляем только
     # первую компоненту имени, пишем её с заглавной буквы
     username = answer.text.rstrip(".!").split()[0].capitalize()
-    answer, choice = yield from ask_yes_or_no(HTML(f"<b>{username}</b>, супер\n" \
+    # username = answer.rstrip(".!").split()[0].capitalize()
+    choice = yield from ask_yes_or_no(HTML(f"<b>{username}</b>, супер\n" \
                                                    "Со мной ты создашь капиталы без лишних\n" \
                                                    "стрессов и нервяков; страшных рисков и потерь.\n" 
                                                    "И вообще, тебя есть с чем поздравить!\n" \
@@ -43,12 +93,11 @@ def dialog_flow(username=None):
 
 def choice_1_yes(username):
     answer, choice = yield from ask_list_answer(HTML(f"Что ж, я уверен, мы с тобой подружимся <b>{username}!</b>\n" \
-                                                     "Тоже считаю, что не стоит тратить жизнь на то, что не нравится.\n" \
-                                                     "Я за воплощение мечты детства и реализацию целей.\n" \
-                                                     "Поэтому давай сразу к делу?\n" \
-                                                     "Пиши \"вперёд\".\nБез лишних разговоров. Ведь время то идет.."),
-                                                ['вперед  ✅', 'не сейчас  ❌', 'в другой раз'])
-
+                                                        "Тоже считаю, что не стоит тратить жизнь на то, что не нравится.\n" \
+                                                        "Я за воплощение мечты детства и реализацию целей.\n" \
+                                                        "Поэтому давай сразу к делу?\n" \
+                                                        "Пиши \"вперёд\".\nБез лишних разговоров. Ведь время то идет.."),
+                                                        ['вперед  ✅', 'не сейчас  ❌', 'в другой раз'])
     if choice == 0:
         answer = yield from choice_2_yes(username)
     else:
@@ -102,13 +151,14 @@ def choice_4_yes(username):
                                                 "\n" \
                                                 "Обслуживание счета в месяц - 0₽.\n" \
                                                 "Напиши \"перейти на сайт брокера\" и там следуй указаниям на сайте.\n" \
-                                                "А после - возвращайся! У меня для тебя есть полезный контент)) ")
+                                                "А после - возвращайся! У меня для тебя есть полезный контент)) ",
+                                                ['Ok  ✅'])
 
     return answer
 
 '''
 *********************************************************************
-Блок отвечает за заполнение Портфолио Клиента финансовыми продуктами
+DialogFlow работы с Портфолио Клиента (финансовые продукты)
 *********************************************************************
 '''
 def dialog_flow_portfolio(chat_id=None):
@@ -128,7 +178,7 @@ def dialog_flow_portfolio(chat_id=None):
             break
     return
 
-# Главное меню блока Портфолио
+# Главное меню Портфолио
 def choice_portfolio_main_menu(user, before_answer_bot=''):
     if before_answer_bot != '':
         before_answer_bot += '\n\n'
@@ -140,11 +190,8 @@ def choice_portfolio_main_menu(user, before_answer_bot=''):
 # Просмотр содержимого Портфолио Клиента
 def choice_portfolio_list(user):
     products = get_products_in_portfolio(user)
-    answer = '\n'.join(list(map(lambda x: x.name, products)))
-    # answer = yield HTML(f'{user.first_name}, состав Вашего портфеля:\n {answer}')
-    # return
-    # return answer.text
-    return f'{user.first_name}, состав Вашего портфеля:\n {answer}'
+    answer = '\n- '.join(list(map(lambda x: x.name, products)))
+    return f"<b>{user.first_name}</b>, состав Вашего <u>портфеля</u>:\n- {answer}"
 
 # Dialog-Flow добавления продукта в Портфолио Клиента
 def choice_portfolio_add_product(user):
@@ -169,7 +216,6 @@ def choice_portfolio_add_product(user):
                 flag_exit = True
                 break
     return
-
 
 # Dialog-Flow удаления продукта из Портфолио Клиента
 def choice_portfolio_del_product(user):
@@ -286,6 +332,7 @@ class HTML(Message):
     def __init__(self, text, **options):
         super(HTML, self).__init__(text, parse_mode="HTML", **options)
 
+
 '''
 *********************************************************************
 Блок функций работы с портфолио Клиента для удобства
@@ -316,12 +363,86 @@ def get_categories_not_all_products_in_portfolio(user):
     id_list = set(map(lambda x: x.category_id, get_products_not_in_portfolio(user)))
     return ProductCategory.objects.filter(id__in=id_list)
 
-# на будущее...
-random_wrong_question = ['Перефразируйте пожалуйста. Не понимаю вопроса.:-)', \
-                         'Не совсем понял вопроса. Можете задать по другому?', \
-                         'Интересный вопрос. Уточните, пожалуйста, что Вы имеете ввиду', \
-                         'Можете спросить по-другому?', \
-                         'Задайте вопрос иначе. Не совсем понял, что Вы имеете ввиду.',
-                         'А вот это интересно, но пока не понятно',
-                         'Даже википедия ничего не знает! Можете спросить по-другому.',
-                         'Надеюсь Вы не ругаетесь, потому что я ничего не понял.']
+
+'''
+*********************************************************************
+GOOGLE DialogFlow
+*********************************************************************
+'''
+def convert(data):
+    if isinstance(data, bytes):
+        return data.decode('ascii')
+    if isinstance(data, dict):
+        return dict(map(convert, data.items()))
+    if isinstance(data, tuple):
+        return map(convert, data)
+
+    return data
+
+
+def ask_google_dialog_flow(input_text, chat_id):
+    print('Message to Google', input_text)
+
+    path = os.path.join(BASE_DIR, GOOGLE_AUTHENTICATION_FILE_NAME)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path
+
+    session_id = chat_id
+    context_short_name = "does_not_matter"
+
+    context_name = "projects/" + GOOGLE_PROJECT_ID + "/agent/sessions/" + str(session_id) + "/contexts/" + \
+                   context_short_name.lower()
+
+    parameters = dialogflow.types.struct_pb2.Struct()
+    # parameters["foo"] = "bar"
+
+    context_1 = dialogflow.types.context_pb2.Context(
+        name=context_name,
+        lifespan_count=2,
+        parameters=parameters
+    )
+    query_params_1 = {"contexts": [context_1]}
+
+    language_code = 'ru'
+
+    response = detect_intent_with_parameters(
+        project_id=GOOGLE_PROJECT_ID,
+        session_id=session_id,
+        query_params=query_params_1,
+        language_code=language_code,
+        user_input=input_text
+    )
+    return response.query_result.fulfillment_text
+
+
+def detect_intent_with_parameters(project_id, session_id, query_params, language_code, user_input):
+    """Returns the result of detect intent with texts as inputs.
+
+    Using the same `session_id` between requests allows continuation
+    of the conversaion."""
+    session_client = dialogflow.SessionsClient()
+
+    session = session_client.session_path(project_id, session_id)
+    print('Google session path: {}\n'.format(session))
+
+    #text = "this is as test"
+    text = user_input
+
+    text_input = dialogflow.types.TextInput(
+        text=text, language_code=language_code)
+
+    query_input = dialogflow.types.QueryInput(text=text_input)
+
+    response = session_client.detect_intent(
+        session=session, query_input=query_input,
+        query_params=query_params
+    )
+
+    print('=' * 20)
+    print('Google Query text: {}'.format(response.query_result.query_text))
+    print('Detected intent: {} (confidence: {})\n'.format(
+        response.query_result.intent.display_name,
+        response.query_result.intent_detection_confidence))
+    print('Fulfillment text: {}\n'.format(
+        response.query_result.fulfillment_text))
+
+    return response
