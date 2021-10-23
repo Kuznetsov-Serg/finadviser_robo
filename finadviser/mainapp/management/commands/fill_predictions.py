@@ -90,7 +90,7 @@ def fill_new_bd_from_EXCEL_file_by_api (file_name="catalog"):
         sign = hashlib.md5((param_str + model.secret_key).encode('utf8')).hexdigest()
 
         # Генерим API-запрос
-        api_url = urlunparse(('http', '127.0.0.1:8000', '/api/prediction.put/' + sign + '/', None,
+        api_url = urlunparse(('http', '1362-212-176-232-203.ngrok.io', '/api/prediction.put/' + sign + '/', None,
                           urlencode(api_dict), None))
         print(api_url)
         resp = requests.get(api_url)
